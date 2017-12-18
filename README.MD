@@ -50,7 +50,7 @@ This product includes GeoLite2 data created by MaxMind, available from
 因为能力有限, 不能实现logstash的那套语法, if是用了另外的格式.
 [可以参考一个配置的示例](https://github.com/childe/hangout/blob/master/conf/example.yml)
 
-嵌套字段举例:
+## 嵌套字段举例:
 1. 将x.y的值赋值给name.first
 2. 将metadata.time 做Date Filter处理.
 
@@ -63,7 +63,6 @@ This product includes GeoLite2 data created by MaxMind, available from
     src: '[metadata][time]'
     formats:
         - 'ISO8601'
-    remove_fields: ['logtime']
 ```
 
 ## Input
@@ -117,6 +116,10 @@ type: nginx
 ## Filter
 ### Grok
 Grok是为了把一个字符串切割成多个field, 用的是[Joni库](https://github.com/jruby/joni), 不完全支持logstash里面的patterns语法,%{INT:bytes:int}这种语法不支持, 只支持%{INT:bytes},字段类型需要在ES中定义.
+
+具体文档可以参考logstash的文档[https://www.elastic.co/guide/en/logstash/current/plugins-filters-grok.html](https://www.elastic.co/guide/en/logstash/current/plugins-filters-grok.html)
+
+正则的语法可以参考 [https://www.elastic.co/guide/en/logstash/current/plugins-filters-grok.html](https://www.elastic.co/guide/en/logstash/current/plugins-filters-grok.html)
 
 会依次匹配match中的正则, 直到有一个成功的.
 
