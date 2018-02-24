@@ -1,13 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Configuration status="error">
+<Configuration status="WARN">
   <Appenders>
     <Console name="Console" target="SYSTEM_OUT">
       <PatternLayout pattern="%d [%t] %-5level %logger{36} - %msg%n"/>
     </Console>
+    <File name="File1" fileName="output.log" bufferedIO="false">
+      <PatternLayout pattern="%d [%t] %-5level %logger{36} - %msg%n"/>
+    </File>
+    <RollingFile name="RollingFile" fileName="logs/app.log"
+                 filePattern="logs/app.log-%d{MM-dd-yyyy}-%i.log.gz">
+      <PatternLayout pattern="%d [%t] %-5level %logger{36} - %msg%n"/>
+      <Policies>
+        <TimeBasedTriggeringPolicy />
+        <SizeBasedTriggeringPolicy size="2 MB"/>
+      </Policies>
+      <DefaultRolloverStrategy max="20"/>
+    </RollingFile>
   </Appenders>
   <Loggers>
-    <Root level="${env:HO_LOG_LEVEL}">
-      <AppenderRef ref="Console"/>
+    <Root level="DEBUG">
+      <AppenderRef ref="RollingFile"/>
     </Root>
   </Loggers>
 </Configuration>
