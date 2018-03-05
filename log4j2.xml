@@ -18,7 +18,7 @@
     </RollingFile>
   </Appenders>
   <Loggers>
-    <Root level="DEBUG">
+    <Root level="${env:HO_LOG_LEVEL}">
       <AppenderRef ref="RollingFile"/>
     </Root>
   </Loggers>
