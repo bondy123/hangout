@@ -267,17 +267,30 @@ concurrent_requests设置成大于0的数, 意思着多线程处理, 以我应�
 
 sniff设置为true的话, 会把hosts当做一个入口, 然后去寻找真正的data nodes写数据. 如果设置成false,数据就直接写在配置的hosts列表机器上,可以缓解data node上面的流量压力和小部分CPU压力.
 
-	cluster: prod # cluster name, required
-	hosts: # required
-		- 192.168.1.100
-		- 192.168.1.200:9301
-	index: 'hangout-%{+YYYY.MM.dd}'
-	index_type: logs # default logs
-	bulk_actions: 20000 # default 20000
-	bulk_size: 15	#default 15
-	flush_interval: 10	#default 10
-	concurrent_requests: 0	#default 0
-    sniff: false #default true
+```
+cluster: prod # cluster name, required
+hosts: # required
+  - 192.168.1.100
+  - 192.168.1.200:9301
+index: 'hangout-%{+YYYY.MM.dd}'
+index_type: logs # default logs
+bulk_actions: 20000 # default 20000
+bulk_size: 15	#default 15
+flush_interval: 10	#default 10
+concurrent_requests: 0	#default 0
+sniff: false #default true
+```
+
+注意: index的配置**部分**兼容logstash配置, 但是如果需要使用`@timestamp`之外的字段做渲染, 需要如下配置:
+
+  index: '${topicindex}-${@timestamp.toString("YYYY")}'
+
+一些高级写法:
+
+```
+index_type: ${EsIndexType!"logs"}  # 使用EsIndexType字段, 如果没有, 刚使用logs. 这个是freemarker的渲染模板
+document_id: '[id]'
+```
 
 ### ElasticsearchHTTP
 使用[rest api](https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-bulk.html) 批量将数据写入ES.
@@ -297,10 +310,22 @@ sniff设置为true的话, 会把hosts当做一个入口, 然后去寻找真正�
 	bootstrap_servers: 192.168.1.100:9092 # required
 	topic: test # required
 
+可以设置输出格式, 参考上面的嵌套字段写法:
+
+	#bootstrap_servers format is host1:port1,host2:port2, and the list can be a subset of brokers or a VIP pointing to a subset of brokers.
+	bootstrap_servers: 192.168.1.100:9092 # required
+	topic: test # required
+	format: '[message]'
+
 ### Stdout
 主要测试用吧. 因为配置是yml格式, 所以没有其它条件的话, 需要写成 
 
     - Stdout: {}
+
+也可以参考上面的嵌套字段写法:
+
+    - Stdout:
+        format: '[message]'
 
 ## Metrics
 为了实现对各个agent的统一性能和运行情况监控，在input/filter/output之外又提供了种叫Metrics的plugin, 用来监控应用的指标, 目前(0.3.0)提供了两种插件, 一种写一些性能数据到Graphit, 一种是restful接口提供性能监控、探活.
@@ -340,6 +365,12 @@ metric count, 可以记录流经每个plugin的数据多少, 开发新的plugin�
 3. 对消息做聚合, 额外输出聚合后的新消息. 聚合访问日志,统计一定时间段内每个Url的响应时间(平均值,最小最大值,条数等信息), 然后输出给下游. [https://github.com/childe/hangout-filter-statmetric](https://github.com/childe/hangout-filter-statmetric)
 4. output.  示例3中的聚合数据如果需要告警, 比如Url的响应时间过高, 可以通过邮件发送出去. [https://github.com/childe/hangout-output-mail](https://github.com/childe/hangout-output-mail)
 5. input. TODO
+ 
+# 目前第三方插件：
+1. 使用Hangout将数据清洗写入ClickHouse
+https://github.com/RickyHuo/hangout-output-clickhouse
+2. 流式聚合https://github.com/childe/hangout-filter-linkmetric
+
 
 # LICENSE
 The MIT License (MIT)
